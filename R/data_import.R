@@ -15,3 +15,4 @@ reth <- diff(log(eth))[-1]
 idx <- complete.cases(rbtc, reth)
 X <- as.numeric(rbtc[idx])
 Y <- as.numeric(reth[idx])
+n <- length(X)
