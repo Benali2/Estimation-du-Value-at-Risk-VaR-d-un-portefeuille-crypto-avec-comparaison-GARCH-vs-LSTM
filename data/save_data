@@ -1,0 +1,54 @@
+# ============================================================
+# Sauvegarde des données BTC / ETH utilisées dans le projet
+# ============================================================
+
+import numpy as np
+import pandas as pd
+import yfinance as yf
+from pathlib import Path
+
+# ------------------------------------------------------------
+# 1) Paramètres
+# ------------------------------------------------------------
+tickers = ["BTC-USD", "ETH-USD"]
+start_date = "2022-01-01"
+
+# Dossier courant = data/
+DATA_DIR = Path(__file__).resolve().parent
+
+# ------------------------------------------------------------
+# 2) Téléchargement des données brutes
+# ------------------------------------------------------------
+data = yf.download(tickers, start=start_date, auto_adjust=False, progress=False)
+
+# Sauvegarde des prix de clôture
+close = data["Close"].copy()
+
+btc = close["BTC-USD"].dropna()
+eth = close["ETH-USD"].dropna()
+
+btc.to_csv(DATA_DIR / "BTC_USD.csv", header=["Close"])
+eth.to_csv(DATA_DIR / "ETH_USD.csv", header=["Close"])
+
+print("✔ Données brutes sauvegardées : BTC_USD.csv, ETH_USD.csv")
+
+# ------------------------------------------------------------
+# 3) Calcul des rendements log
+# ------------------------------------------------------------
+rbtc = np.log(btc).diff().dropna()
+reth = np.log(eth).diff().dropna()
+
+df_returns = pd.concat(
+    [rbtc.rename("BTC"), reth.rename("ETH")],
+    axis=1
+).dropna()
+
+df_returns.to_csv(DATA_DIR / "returns_BTC_ETH.csv")
+
+print("✔ Rendements sauvegardés : returns_BTC_ETH.csv")
+
+# ------------------------------------------------------------
+# 4) Résumé rapide
+# ------------------------------------------------------------
+print("\nRésumé des données :")
+print(df_returns.describe())
