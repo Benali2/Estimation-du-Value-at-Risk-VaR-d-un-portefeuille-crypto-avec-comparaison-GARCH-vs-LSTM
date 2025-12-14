@@ -1,81 +1,78 @@
 # Estimation du Value at Risk (VaR) d’un portefeuille crypto  
-### Comparaison entre la méthode Monte-Carlo et la Régression Quantile
+### Comparaison entre la méthode Historique et la méthode Monte-Carlo (copule t)
 
-Les crypto-actifs, tels que Bitcoin et Ethereum, présentent une volatilité élevée, des distributions asymétriques, des queues épaisses et des comportements non-gaussiens. Ces caractéristiques rendent les méthodes classiques de mesure du risque — basées sur l’hypothèse de normalité — insuffisamment robustes.
+Les crypto-actifs tels que Bitcoin (BTC) et Ethereum (ETH) se caractérisent par une forte volatilité, des distributions asymétriques, des queues épaisses et une dépendance non linéaire, notamment lors des périodes de stress. Ces propriétés remettent en question l’efficacité des méthodes classiques de mesure du risque.
 
-Ce projet propose une **analyse comparative** entre deux approches avancées d’estimation du Value at Risk (VaR) :
-
----
-
-## 1. Méthode Monte-Carlo (MC)
-
-La méthode Monte-Carlo repose sur la simulation de milliers de scénarios futurs de rendements.  
-Dans ce projet, les simulations utilisent :
-
-- des **distributions marginales Student-t** ajustées aux rendements BTC et ETH ;
-- une **t-copule** capturant la dépendance non linéaire ainsi que la dépendance en queue entre les deux actifs.
-
-Cette méthode est particulièrement adaptée au marché crypto car elle reproduit :
-
-- la dynamique extrême (co-crash) observée entre actifs,
-- les queues épaisses,
-- les mouvements violents du marché.
-
-Elle fournit une VaR **réaliste et robuste**, surtout en période de stress.
+Ce projet propose une **analyse comparative** entre deux approches largement utilisées pour l’estimation du Value at Risk (VaR) d’un portefeuille crypto.
 
 ---
 
-## 2. Régression Quantile (QR)
+## 1. Méthode de la VaR Historique
 
-La Régression Quantile permet d’estimer directement les **quantiles conditionnels** des pertes du portefeuille, en fonction des informations passées.
+La VaR Historique repose exclusivement sur les données passées du portefeuille.  
+Elle consiste à construire la distribution empirique des pertes historiques, puis à extraire le quantile correspondant au niveau de confiance choisi (95 % ou 99 %).
 
-Contrairement aux approches paramétriques :
+Cette méthode présente plusieurs avantages :
+- simplicité de mise en œuvre,
+- absence d’hypothèses paramétriques,
+- interprétation intuitive.
 
-- aucune hypothèse de normalité ou de forme de distribution n’est imposée,
-- le modèle cible **directement** les quantiles extrêmes (VaR 95 %, VaR 99 %).
+Cependant, elle suppose implicitement que le futur reproduit fidèlement le passé et peut sous-estimer le risque en présence de mouvements extrêmes ou de changements de régime, fréquents sur les marchés crypto.
 
-Cette méthode est particulièrement pertinente pour les cryptos, dont les distributions sont asymétriques et loin de la normalité.  
-Elle constitue une alternative flexible et moderne pour l’estimation de la VaR.
+---
+
+## 2. Méthode Monte-Carlo avec copule t
+
+La méthode Monte-Carlo repose sur la simulation de scénarios futurs de rendements du portefeuille.  
+Dans ce projet, cette approche s’appuie sur :
+
+- des **distributions marginales Student-t** ajustées aux rendements de BTC et ETH, permettant de capturer les queues épaisses ;
+- une **t-copule** pour modéliser la dépendance non linéaire et la dépendance en queue entre les deux actifs.
+
+Les rendements simulés sont ensuite agrégés afin d’obtenir une distribution simulée des pertes du portefeuille, à partir de laquelle la VaR est estimée.
+
+Cette méthode est particulièrement adaptée aux crypto-actifs car elle permet de :
+- prendre en compte les co-crashes,
+- mieux représenter les événements extrêmes,
+- produire une estimation plus robuste de la VaR en période de stress.
 
 ---
 
 ## Objectif du projet
 
-Comparer de manière rigoureuse les deux approches afin d’évaluer :
+L’objectif principal est de comparer la VaR Historique et la VaR Monte-Carlo selon plusieurs critères :
 
-- la précision des estimations de VaR,
-- la stabilité des méthodes en période de forte volatilité,
-- le taux de violations lors du backtesting,
-- la capacité à capturer les événements extrêmes et la dynamique réelle du marché crypto.
-
----
-
-## Pertinence du projet
-
-Les rendements crypto présentent :
-
-- une forte non-linéarité,
-- des mouvements extrêmes,
-- une dépendance significative en queue.
-
-La confrontation entre **Monte-Carlo (Student-t + t-copule)** et **Régression Quantile** permet d’exposer deux visions complémentaires :
-
-- **modélisation stochastique explicite** (MC),
-- **quantile conditionnel non paramétrique** (QR).
+- le niveau des VaR estimées (95 % et 99 %),
+- le comportement des méthodes en période de forte volatilité,
+- le nombre de violations observées lors du backtesting,
+- la capacité à couvrir efficacement le risque extrême.
 
 ---
 
-## Contenu du projet
+## Méthodologie
 
-- Prétraitement et analyse des rendements BTC et ETH  
-- Ajustement des distributions marginales Student-t  
-- Estimation de la t-copule pour la dépendance  
-- Simulation Monte-Carlo des pertes futures du portefeuille  
-- Estimation de la VaR par Régression Quantile  
-- Backtesting et comparaison des violations  
-- Analyse des performances des deux méthodes
+Le projet suit les étapes suivantes :
+
+- calcul des rendements journaliers de BTC et ETH ;
+- construction du portefeuille crypto (pondérations fixes) ;
+- estimation de la VaR Historique ;
+- ajustement des marges Student-t et estimation de la t-copule ;
+- simulation Monte-Carlo des rendements et des pertes du portefeuille ;
+- estimation de la VaR Monte-Carlo ;
+- backtesting des deux méthodes à l’aide du test de Kupiec ;
+- analyse comparative des résultats.
 
 ---
+
+## Intérêt de l’étude
+
+La comparaison entre la VaR Historique et la VaR Monte-Carlo permet d’illustrer deux approches fondamentalement différentes de la gestion du risque :
+
+- une approche empirique simple basée sur le passé,
+- une approche probabiliste avancée intégrant dépendance et queues épaisses.
+
+Les résultats mettent en évidence les limites de la VaR Historique face aux caractéristiques spécifiques des marchés crypto et soulignent l’intérêt des méthodes de simulation pour une gestion plus prudente du risque extrême.
+
 
 
 
